@@ -4,8 +4,8 @@ StudySync is a web application that helps college students organize assignments,
 
 ## Project links
 
-- Repository: to be added after publication
-- GitHub Project Board: to be added after creation
+- Repository: https://github.com/devinephoebe433-eng/studysync-team-project
+- GitHub Project Board: pending GitHub account authorization with the `project` permission
 - Specification: [docs/SPECIFICATION.md](docs/SPECIFICATION.md)
 - Live site: to be added after deployment
 
@@ -28,3 +28,15 @@ Open http://localhost:3000. Validate the production build with `npm run build` a
 - [Team meeting summary template](docs/TEAM_MEETING_SUMMARY.md)
 - [Code standards](docs/CODE_STANDARDS.md)
 - [Rendered-site review template](docs/TEAM_CODE_REVIEW_REPORT.md)
+- [Project board plan](docs/PROJECT_BOARD.md)
+
+## Current backlog issues
+
+- [#1 Class organization and course filters](https://github.com/devinephoebe433-eng/studysync-team-project/issues/1)
+- [#2 Assignment CRUD workflow](https://github.com/devinephoebe433-eng/studysync-team-project/issues/2)
+- [#3 Calendar and upcoming deadlines](https://github.com/devinephoebe433-eng/studysync-team-project/issues/3)
+- [#4 Shared project spaces](https://github.com/devinephoebe433-eng/studysync-team-project/issues/4)
+- [#5 Project task assignment and status](https://github.com/devinephoebe433-eng/studysync-team-project/issues/5)
+- [#6 Progress dashboard](https://github.com/devinephoebe433-eng/studysync-team-project/issues/6)
+- [#7 Study sessions and deadline reminders](https://github.com/devinephoebe433-eng/studysync-team-project/issues/7)
+- [#8 Authentication and persistent data boundary](https://github.com/devinephoebe433-eng/studysync-team-project/issues/8)
