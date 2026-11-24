@@ -1,0 +1,12 @@
+'use client'
+
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { ReactNode } from 'react'
+
+export function AppShell({ children, active }: { children: ReactNode; active: 'overview' | 'tasks' | 'projects' | 'calendar' }) {
+  const router = useRouter()
+  async function logout() { await fetch('/api/auth/logout', { method: 'POST' }); router.push('/login'); router.refresh() }
+  const links = [{ href: '/', label: 'Overview', key: 'overview', icon: '⌂' }, { href: '/tasks', label: 'My tasks', key: 'tasks', icon: '✓' }, { href: '/calendar', label: 'Calendar', key: 'calendar', icon: '□' }, { href: '/projects', label: 'Projects', key: 'projects', icon: '◈' }] as const
+  return <div className="min-h-screen bg-[#f6f8fa] text-[#193247]"><header className="sticky top-0 z-20 flex items-center justify-between border-b border-slate-200 bg-white/95 px-5 py-4 backdrop-blur sm:px-8"><Link href="/" className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-2xl bg-[#193247] text-sm font-bold text-white">S</span><span><span className="block text-[10px] font-bold uppercase tracking-[0.2em] text-teal-700">StudySync</span><span className="block text-sm font-bold">Student workspace</span></span></Link><div className="flex items-center gap-3"><span className="hidden text-xs text-slate-400 sm:block">Jordan Davis</span><button onClick={logout} className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-500 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600">Log out</button></div></header><div className="mx-auto flex max-w-[1480px] flex-col lg:flex-row"><aside className="border-b border-slate-200 bg-white px-5 py-3 lg:min-h-[calc(100vh-73px)] lg:w-60 lg:border-b-0 lg:border-r lg:px-5 lg:py-8"><nav className="flex gap-2 overflow-x-auto lg:block lg:space-y-2" aria-label="Main navigation">{links.map((link) => <Link key={link.key} href={link.href} className={`flex min-w-fit items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold transition ${active === link.key ? 'bg-[#eaf4f6] text-[#167986]' : 'text-slate-500 hover:bg-slate-50 hover:text-[#193247]'}`}><span className="grid h-7 w-7 place-items-center rounded-lg bg-slate-100 text-xs">{link.icon}</span>{link.label}</Link>)}</nav></aside><main className="min-w-0 flex-1 px-5 py-8 sm:px-8 lg:px-12 lg:py-10">{children}</main></div></div>
+}
