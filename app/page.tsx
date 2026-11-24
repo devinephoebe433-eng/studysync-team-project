@@ -7,13 +7,14 @@ type Task = {
   course: string
   date: string
   tone: 'rose' | 'blue' | 'amber'
+  priority: 'High' | 'Medium' | 'Low'
   done: boolean
 }
 
 const initialTasks: Task[] = [
-  { title: 'Read chapter 4 and write notes', course: 'Human Biology', date: 'Today', tone: 'rose', done: false },
-  { title: 'Submit wireframes for review', course: 'Web Design', date: 'Tomorrow', tone: 'blue', done: false },
-  { title: 'Problem set 06', course: 'Calculus II', date: 'Fri, Oct 18', tone: 'amber', done: true },
+  { title: 'Read chapter 4 and write notes', course: 'Human Biology', date: 'Today', tone: 'rose', priority: 'High', done: false },
+  { title: 'Submit wireframes for review', course: 'Web Design', date: 'Tomorrow', tone: 'blue', priority: 'Medium', done: false },
+  { title: 'Problem set 06', course: 'Calculus II', date: 'Fri, Oct 18', tone: 'amber', priority: 'Low', done: true },
 ]
 
 const projects = [
@@ -24,14 +25,20 @@ const projects = [
 export default function Home() {
   const [tasks, setTasks] = useState(initialTasks)
   const [query, setQuery] = useState('')
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'completed'>('all')
+  const [priorityFilter, setPriorityFilter] = useState<'all' | Task['priority']>('all')
   const [showComposer, setShowComposer] = useState(false)
   const [newTask, setNewTask] = useState('')
 
   const visibleTasks = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase()
-    if (!normalizedQuery) return tasks
-    return tasks.filter((task) => `${task.title} ${task.course}`.toLowerCase().includes(normalizedQuery))
-  }, [query, tasks])
+    return tasks.filter((task) => {
+      const matchesQuery = !normalizedQuery || `${task.title} ${task.course}`.toLowerCase().includes(normalizedQuery)
+      const matchesStatus = statusFilter === 'all' || (statusFilter === 'completed' ? task.done : !task.done)
+      const matchesPriority = priorityFilter === 'all' || task.priority === priorityFilter
+      return matchesQuery && matchesStatus && matchesPriority
+    })
+  }, [priorityFilter, query, statusFilter, tasks])
 
   const completedCount = tasks.filter((task) => task.done).length
   const completionPercent = tasks.length ? Math.round((completedCount / tasks.length) * 100) : 0
@@ -44,7 +51,7 @@ export default function Home() {
     event.preventDefault()
     const title = newTask.trim()
     if (!title) return
-    setTasks((current) => [...current, { title, course: 'Personal', date: 'This week', tone: 'blue', done: false }])
+    setTasks((current) => [...current, { title, course: 'Personal', date: 'This week', tone: 'blue', priority: 'Medium', done: false }])
     setNewTask('')
     setShowComposer(false)
   }
@@ -71,7 +78,7 @@ export default function Home() {
           {showComposer && <form onSubmit={addTask} className="mt-5 flex flex-col gap-3 rounded-2xl border border-[#b9dfe0] bg-[#f1fafa] p-4 sm:flex-row" aria-label="Add a new task"><div className="flex-1"><label className="text-xs font-bold uppercase tracking-wide text-[#167986]" htmlFor="new-task">New task</label><input id="new-task" autoFocus value={newTask} onChange={(event) => setNewTask(event.target.value)} className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#9bcbd0]" placeholder="What needs your attention?" required /></div><button className="self-end rounded-xl bg-[#167986] px-4 py-2.5 text-sm font-semibold text-white" type="submit">Save task</button></form>}
 
           <div className="mt-9 grid gap-5 xl:grid-cols-[1.35fr_0.65fr]">
-            <section id="tasks" className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/30"><div className="flex items-center justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Today&apos;s focus</p><h2 className="mt-2 text-lg font-semibold">Your task list</h2></div><span className="text-xs font-semibold text-[#167986]">{completedCount}/{tasks.length} complete</span></div><div className="mt-5 divide-y divide-slate-100">{visibleTasks.length ? visibleTasks.map((task) => <div className="flex items-center gap-4 py-4 first:pt-1" key={task.title}><button type="button" onClick={() => toggleTask(task.title)} aria-label={`${task.done ? 'Mark' : 'Complete'} ${task.title}`} aria-pressed={task.done} className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 transition ${task.done ? 'border-[#58a59a] bg-[#58a59a] text-white' : 'border-slate-300 text-transparent hover:border-[#58a59a]'}`}>✓</button><div className="min-w-0 flex-1"><p className={`truncate text-sm font-semibold ${task.done ? 'text-slate-400 line-through' : 'text-[#193247]'}`}>{task.title}</p><p className="mt-1 text-xs text-slate-400">{task.course}</p></div><span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${task.tone === 'rose' ? 'bg-rose-50 text-rose-500' : task.tone === 'blue' ? 'bg-sky-50 text-sky-600' : 'bg-amber-50 text-amber-600'}`}>{task.date}</span></div>) : <p className="py-8 text-center text-sm text-slate-400">No tasks match your search.</p>}</div></section>
+            <section id="tasks" className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/30"><div className="flex items-center justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Today&apos;s focus</p><h2 className="mt-2 text-lg font-semibold">Your task list</h2></div><span className="text-xs font-semibold text-[#167986]">{completedCount}/{tasks.length} complete</span></div><div className="mt-5 flex flex-wrap gap-2" role="group" aria-label="Task filters"><span className="mr-1 self-center text-xs font-semibold text-slate-400">Show</span>{(['all', 'active', 'completed'] as const).map((filter) => <button key={filter} type="button" onClick={() => setStatusFilter(filter)} aria-pressed={statusFilter === filter} className={`rounded-full px-3 py-1.5 text-xs font-semibold capitalize ${statusFilter === filter ? 'bg-[#193247] text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>{filter}</button>)}<span className="mx-1 self-center text-slate-200" aria-hidden="true">|</span>{(['all', 'High', 'Medium', 'Low'] as const).map((priority) => <button key={priority} type="button" onClick={() => setPriorityFilter(priority)} aria-pressed={priorityFilter === priority} className={`rounded-full px-3 py-1.5 text-xs font-semibold ${priorityFilter === priority ? 'bg-[#eaf4f6] text-[#167986]' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>{priority === 'all' ? 'All priorities' : priority}</button>)}</div><div className="mt-3 divide-y divide-slate-100">{visibleTasks.length ? visibleTasks.map((task) => <div className="flex items-center gap-4 py-4 first:pt-1" key={task.title}><button type="button" onClick={() => toggleTask(task.title)} aria-label={`${task.done ? 'Mark' : 'Complete'} ${task.title}`} aria-pressed={task.done} className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 transition ${task.done ? 'border-[#58a59a] bg-[#58a59a] text-white' : 'border-slate-300 text-transparent hover:border-[#58a59a]'}`}>✓</button><div className="min-w-0 flex-1"><p className={`truncate text-sm font-semibold ${task.done ? 'text-slate-400 line-through' : 'text-[#193247]'}`}>{task.title}</p><p className="mt-1 text-xs text-slate-400">{task.course}</p></div><div className="flex shrink-0 items-center gap-2"><span className={`hidden rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wide sm:inline ${task.priority === 'High' ? 'bg-rose-50 text-rose-500' : task.priority === 'Medium' ? 'bg-amber-50 text-amber-600' : 'bg-slate-100 text-slate-500'}`}>{task.priority}</span><span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${task.tone === 'rose' ? 'bg-rose-50 text-rose-500' : task.tone === 'blue' ? 'bg-sky-50 text-sky-600' : 'bg-amber-50 text-amber-600'}`}>{task.date}</span></div></div>) : <p className="py-8 text-center text-sm text-slate-400">No tasks match these filters.</p>}</div></section>
             <section id="calendar" className="rounded-2xl bg-[#193247] p-5 text-white shadow-lg shadow-[#193247]/10"><div className="flex items-start justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-[#9bcbd0]">Next deadline</p><p className="mt-5 text-4xl font-semibold tracking-[-0.06em]">2<span className="ml-1 text-base font-normal text-slate-300">days</span></p></div><span className="rounded-full bg-white/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-[#bde2df]">On track</span></div><p className="mt-5 text-sm font-semibold">Research methods proposal</p><p className="mt-1 text-xs text-slate-300">Social Science 204 · Friday, Oct 18</p><div className="mt-6 h-1.5 rounded-full bg-white/10"><div className="h-full w-[72%] rounded-full bg-[#7ac6b6]" /></div><p className="mt-2 text-[10px] text-slate-300">72% of prep complete</p></section>
           </div>
 
